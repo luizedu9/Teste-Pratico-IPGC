@@ -1,0 +1,61 @@
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+
+CREATE SCHEMA IF NOT EXISTS `teste-backend-ipgc` DEFAULT CHARACTER SET utf8 ;
+
+CREATE TABLE IF NOT EXISTS `teste-backend-ipgc`.`Produto` (
+  `pro_codigo` INT(11) NOT NULL AUTO_INCREMENT,
+  `pro_nome` VARCHAR(80) NOT NULL,
+  `pro_preco` FLOAT(11) NOT NULL,
+  `pro_descricao` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`pro_codigo`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `teste-backend-ipgc`.`Cliente` (
+  `cli_codigo` INT(11) NOT NULL AUTO_INCREMENT,
+  `cli_nome` VARCHAR(100) NOT NULL,
+  `cli_email` VARCHAR(200) NOT NULL,
+  `cli_telefone` VARCHAR(20) NULL DEFAULT NULL,
+  PRIMARY KEY (`cli_codigo`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `teste-backend-ipgc`.`Venda` (
+  `ven_codigo` INT(11) NOT NULL AUTO_INCREMENT,
+  `ven_data` VARCHAR(10) NOT NULL,
+  `ven_cli_codigo` INT(11) NOT NULL,
+  PRIMARY KEY (`ven_codigo`),
+  INDEX `fk_Venda_Cliente1_idx` (`ven_cli_codigo` ASC),
+  CONSTRAINT `fk_Venda_Cliente1`
+    FOREIGN KEY (`ven_cli_codigo`)
+    REFERENCES `teste-backend-ipgc`.`Cliente` (`cli_codigo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `teste-backend-ipgc`.`Produto_Venda` (
+  `pv_pro_codigo` INT(11) NOT NULL,
+  `pv_ven_codigo` INT(11) NOT NULL,
+  PRIMARY KEY (`pv_pro_codigo`, `pv_ven_codigo`),
+  INDEX `fk_Produto_has_Venda_Venda1_idx` (`pv_ven_codigo` ASC),
+  INDEX `fk_Produto_has_Venda_Produto1_idx` (`pv_pro_codigo` ASC),
+  CONSTRAINT `fk_Produto_has_Venda_Produto1`
+    FOREIGN KEY (`pv_pro_codigo`)
+    REFERENCES `teste-backend-ipgc`.`Produto` (`pro_codigo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Produto_has_Venda_Venda1`
+    FOREIGN KEY (`pv_ven_codigo`)
+    REFERENCES `teste-backend-ipgc`.`Venda` (`ven_codigo`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
