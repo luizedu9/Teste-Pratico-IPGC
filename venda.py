@@ -5,11 +5,22 @@
 # Luiz Eduardo Pereira
 
 class Venda:
-  def __init__(self, data, cliente, produtos, codigo=None):
-    self.data = data
-    self.cliente = self.cliente
-    self.produtos = self.produtos
+  
+  def __init__(self, codigo, data, cliente, produtos):
     self.codigo = codigo
+    self.data = data
+    self.cliente = cliente
+    self.produtos = produtos
+
+    # Getters e Setters
+
+    @property
+    def codigo(self):
+        return self.__codigo
+
+    @codigo.setter
+    def codigo(self, codigo):
+        self.__codigo = codigo
 
     @property
     def data(self):
@@ -34,11 +45,3 @@ class Venda:
     @produtos.setter
     def produtos(self, produtos):
         self.__produtos = produtos
-
-    @property
-    def codigo(self):
-        return self.__codigo
-
-    @codigo.setter
-    def codigo(self, codigo):
-        self.__codigo = codigo

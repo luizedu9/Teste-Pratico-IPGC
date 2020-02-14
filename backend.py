@@ -10,6 +10,10 @@ import json
 import requests
 import pymysql
 
+from cliente import Cliente
+from produto import Produto
+from venda import Venda
+
 #######################################################################################################
 #                                                                                                     #
 #                                                 INIT                                                #
@@ -33,60 +37,55 @@ cursor = db.cursor()
 #                                                                                                     #
 #######################################################################################################
 
-
 @app.route('/pip', methods=['GET'])
-def pip():
+@app.route('/pip/<pop>', methods=['POST'])
+def pip(pop=None):
     if request.method == 'GET':
-        return "pop", 200
+        return 'pop', 200
+    if request.method == 'POST':
+        return pop, 200
 
+
+
+
+## LEMBRAR DO TRY EXCEPTION ***********************************************************************
+
+
+
+# API Cliente
+@app.route('/cliente', methods=['POST', 'GET', 'DELETE', 'PUT'])
+def cliente():
+
+    data = request.get_json()
+
+    if request.method == 'POST':
+        insert_cliente(Cliente(None, data['nome'], data['email'], data['telefone']))
+        db_commit()
+        return jsonify({'message': 'Sucesso'}), 200
+
+    if request.method == 'GET': # Retorna clientes
+        clientes = find_all_clientes() # "clientes" é do typo object, é necessario converter para dict para ser serializado para json 
+        return jsonify({'message': '', 'clientes': objetos_to_dicionarios(clientes)}), 200
+    
+    if request.method == 'DELETE':
+        delete_cliente(Cliente(data['codigo'], data['nome'], data['email'], data['telefone']))
+        db_commit()
+        return jsonify({'message': 'Sucesso'}), 200
+
+    if request.method == 'PUT':
+        update_cliente(Cliente(data['codigo'], data['nome'], data['email'], data['telefone']))
+        db_commit()
+        return jsonify({'message': 'Sucesso'}), 200
 
 
 
 @app.errorhandler(404)
 def page_not_found(error):
-    return 'Erro 404 - Página não existe', 404
+    return jsonify({'message': 'Erro 404 - Pagina nao existe'}), 404
 
 @app.errorhandler(405)
 def method_not_allowed(error):
-    return 'Erro 405 - Método não permitido', 405
-
-
-############################################################################################################################3
-
-# Retorna dados necessarios para o funcionamento da venda
-@app.route('/startVenda', methods=['GET'])
-def startVenda():
-    if request.method == 'GET':
-        try:
-            cod = find_numero_venda() # Coleta dados do codigo da venda, clientes e produtos
-            clientes = find_all_clientes()
-            produtos = find_all_produtos()
-            return jsonify({'status': '0', 'codigoVenda': cod, 'clientes': clientes, 'produtos': produtos })
-        except: # Se ocorrer algum erro, retorna status de erro
-            return jsonify({'status': '1'})
-
-# Insere dados da venda ao banco de dados
-@app.route('/insertVenda', methods=['POST'])
-def insertVenda():
-    if request.method == 'POST':
-        try:
-            response = request.get_json()
-            processa_venda(response) # Envia para uma função que processa os dados para inserir no banco
-            db_commit()
-            return jsonify({'status': '0'})
-        except: # Se ocorrer algum erro, retorna status de erro
-            db_rollback()
-            return jsonify({'status': '1'})
-
-# Retorna dados necessarios para o funcionamento da consulta
-@app.route('/startConsulta', methods=['GET'])
-def startConsulta():
-    if request.method == 'GET':
-        try:
-            resultado = find_sql_consulta()
-            return jsonify({'status': '0', 'consulta': resultado})
-        except: # Se ocorrer algum erro, retorna status de erro
-            return jsonify({'status': '1'})
+    return jsonify({'message': 'Erro 405 - Metodo nao permitido'}), 405
 
 #######################################################################################################
 #                                                                                                     #
@@ -94,11 +93,16 @@ def startConsulta():
 #                                                                                                     #
 #######################################################################################################
 
-# Processa os dados para serem inseridos no banco de dados
-def processa_venda(dados):
-    insert_venda(dados)
-    for item in dados['itens']:
-        insert_item(item, dados['numVenda'])    
+# Converte uma lista de objetos para uma lista de dicionarios
+def objetos_to_dicionarios(objetos):
+    lista = []
+    for objeto in objetos:
+        lista.append(objeto.__dict__)
+    return(lista)
+
+# Converte um objeto para dicionario 
+def objeto_to_dicionario(objeto):
+    return(objeto.__dict__)
        
 #######################################################################################################
 #                                                                                                     #
@@ -106,65 +110,33 @@ def processa_venda(dados):
 #                                                                                                     #
 #######################################################################################################
 
-# Retorna vendas cadastradas
-def find_all_vendas():
-    cursor.execute("SELECT * FROM Venda;")
-    resultados = cursor.fetchall()
-    vendas = []
-    for result in resultados: # Transforma o resultado em lista de dicionarios
-        vendas.append({"codigo": result[0], "data": result[1], "total": result[2], "cep": result[3], "logradouro": result[4], "numero": result[5], "complemento": result[6], "bairro": result[7], "localidade": result[8], "uf": result[9], "codigoCliente": result[10]})
-    return(vendas)
+# Insere cliente
+def insert_cliente(cliente):
+    cursor.execute("INSERT INTO Cliente VALUES(null, '" + cliente.nome + "', '" + cliente.email + "', '" + cliente.telefone + "')")
 
-# Retorna clientes cadastrados (Lista de dicionarios)
+# Retorna clientes cadastrados. Tipo do retorno: list of cliente.
 def find_all_clientes():
     cursor.execute("SELECT * FROM Cliente;")
     resultados = cursor.fetchall()
     clientes = []
-    for result in resultados: # Transforma o resultado em lista de dicionarios
-        clientes.append({"codigo": result[0], "nome": result[1], "cnpj": result[2]})
+    for result in resultados: # Transforma o resultado em lista de cliente
+        clientes.append(Cliente(result[0], result[1], result[2], result[3]))
     return(clientes)
 
-# Retorna produtos cadastrados (Lista de dicionarios)
-def find_all_produtos():
-    cursor.execute("SELECT * FROM Produto;")
-    resultados = cursor.fetchall()
-    produtos = []
-    for result in resultados:
-        produtos.append({"codigo": result[0], "descricao": result[1]})
-    return(produtos)
+# Remove cliente
+def delete_cliente(cliente):
+    cursor.execute("DELETE FROM Cliente WHERE cli_codigo = " + str(cliente.codigo))
 
-def find_sql_consulta():
-    cursor.execute("SELECT ven_codigo, ven_data, cli_nome, ven_total FROM Venda JOIN Cliente ON cli_codigo = ven_cli_codigo ORDER BY ven_codigo")
-    resultados = cursor.fetchall()
-    consultas = []
-    for result in resultados:
-        consultas.append({"codigo": result[0], "data": result[1], "cliente": result[2], "total": result[3]})
-    return(consultas)
+# Atualiza cliente
+def update_cliente(cliente):
+    cursor.execute("UPDATE Cliente SET cli_nome = '" + cliente.nome + "', cli_email = '" + cliente.email + "', cli_telefone = '" + cliente.telefone +"' WHERE cli_codigo = " + str(cliente.codigo))
 
-# Retorna o número de vendas cadastradas
-def find_numero_venda():
-    cursor.execute("SELECT * FROM Venda;")
-    return(len(cursor.fetchall()) + 1) # Número da ultima venda + 1
-
-def insert_venda(dados):
-    sql_venda = "INSERT INTO Venda VALUES(null, '" + dados['date'] + "', " + str(dados['valorTotal']) + ", '" + dados['cep'] + "', '" + dados['logradouro'] + "', '" + dados['numero'] + "', '" + dados['complemento'] + "', '" + dados['bairro'] + "', '" + dados['localidade'] + "', '" + dados['uf'] + "', " + str(dados['cliente']['codigo']) + ")"
-    cursor.execute(sql_venda) # Efetiva venda
-    return
-
-def insert_item(item, codigo_venda):
-    sql_item = "INSERT INTO Item VALUES(null, " + str(item['codItem']) + ", " + str(item['preco']) + ", " + str(item['quantidade']) + ", " + str(item['total']) + ", " + str(item['produto']['codigo']) + ", " + str(codigo_venda) +  ")"
-    cursor.execute(sql_item) # Efetiva item
 
 def db_commit():
     db.commit()
 
 def db_rollback():
     db.rollback()
-
-
-############################################################################################################################3
-
-
 
 #######################################################################################################
 #                                                                                                     #

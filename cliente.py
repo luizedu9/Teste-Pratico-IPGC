@@ -5,11 +5,22 @@
 # Luiz Eduardo Pereira
 
 class Cliente:
-  def __init__(self, nome, email, telefone=None, codigo=None):
-    self.nome = nome
-    self.email = self.email
-    self.telefone = self.telefone
+  
+  def __init__(self, codigo, nome, email, telefone=None):
     self.codigo = codigo
+    self.nome = nome
+    self.email = email
+    self.telefone = telefone
+    
+    # Getters e Setters
+
+    @property
+    def codigo(self):
+        return self.__codigo
+
+    @codigo.setter
+    def codigo(self, codigo):
+        self.__codigo = codigo
 
     @property
     def nome(self):
@@ -34,11 +45,3 @@ class Cliente:
     @telefone.setter
     def telefone(self, telefone):
         self.__telefone = telefone
-
-    @property
-    def codigo(self):
-        return self.__codigo
-
-    @codigo.setter
-    def codigo(self, codigo):
-        self.__codigo = codigo
