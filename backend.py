@@ -64,7 +64,7 @@ def cliente():
         return jsonify({'message': 'Sucesso'}), 200
 
     if request.method == 'GET': # Retorna clientes
-        clientes = find_all_clientes() # "clientes" é do typo object, é necessario converter para dict para ser serializado para json 
+        clientes = find_all_clientes() # "clientes" é do tipo object, é necessario converter para dict para ser serializado para json 
         return jsonify({'message': '', 'clientes': objetos_to_dicionarios(clientes)}), 200
     
     if request.method == 'DELETE':
@@ -74,6 +74,31 @@ def cliente():
 
     if request.method == 'PUT':
         update_cliente(Cliente(data['codigo'], data['nome'], data['email'], data['telefone']))
+        db_commit()
+        return jsonify({'message': 'Sucesso'}), 200
+
+# API Produto
+@app.route('/produto', methods=['POST', 'GET', 'DELETE', 'PUT'])
+def produto():
+
+    data = request.get_json()
+
+    if request.method == 'POST':
+        insert_produto(Produto(None, data['nome'], float(data['preco']), data['descricao']))
+        db_commit()
+        return jsonify({'message': 'Sucesso'}), 200
+
+    if request.method == 'GET': # Retorna produtos
+        produtos = find_all_produtos() # "produtos" é do tipo object, é necessario converter para dict para ser serializado para json 
+        return jsonify({'message': '', 'produtos': objetos_to_dicionarios(produtos)}), 200
+    
+    if request.method == 'DELETE':
+        delete_produto(Produto(data['codigo'], data['nome'], float(data['preco']), data['descricao']))
+        db_commit()
+        return jsonify({'message': 'Sucesso'}), 200
+
+    if request.method == 'PUT':
+        update_produto(Produto(data['codigo'], data['nome'], float(data['preco']), data['descricao']))
         db_commit()
         return jsonify({'message': 'Sucesso'}), 200
 
@@ -110,6 +135,14 @@ def objeto_to_dicionario(objeto):
 #                                                                                                     #
 #######################################################################################################
 
+def db_commit():
+    db.commit()
+
+def db_rollback():
+    db.rollback()
+
+# Cliente
+
 # Insere cliente
 def insert_cliente(cliente):
     cursor.execute("INSERT INTO Cliente VALUES(null, '" + cliente.nome + "', '" + cliente.email + "', '" + cliente.telefone + "')")
@@ -131,12 +164,28 @@ def delete_cliente(cliente):
 def update_cliente(cliente):
     cursor.execute("UPDATE Cliente SET cli_nome = '" + cliente.nome + "', cli_email = '" + cliente.email + "', cli_telefone = '" + cliente.telefone +"' WHERE cli_codigo = " + str(cliente.codigo))
 
+# Produto
 
-def db_commit():
-    db.commit()
+# Insere produto
+def insert_produto(produto):
+    cursor.execute("INSERT INTO Produto VALUES(null, '" + produto.nome + "', '" + str(produto.preco) + "', '" + produto.descricao + "')")
 
-def db_rollback():
-    db.rollback()
+# Retorna produtos cadastrados. Tipo do retorno: list of produto.
+def find_all_produtos():
+    cursor.execute("SELECT * FROM Produto;")
+    resultados = cursor.fetchall()
+    produtos = []
+    for result in resultados: # Transforma o resultado em lista de produto
+        produtos.append(Produto(result[0], result[1], float(result[2]), result[3]))
+    return(produtos)
+
+# Remove produto
+def delete_produto(produto):
+    cursor.execute("DELETE FROM Produto WHERE pro_codigo = " + str(produto.codigo))
+
+# Atualiza produto
+def update_produto(produto):
+    cursor.execute("UPDATE Produto SET pro_nome = '" + produto.nome + "', pro_preco = '" + str(produto.preco) + "', pro_descricao = '" + produto.descricao +"' WHERE pro_codigo = " + str(produto.codigo))
 
 #######################################################################################################
 #                                                                                                     #
