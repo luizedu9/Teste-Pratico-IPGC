@@ -1,5 +1,0 @@
-'{"nome": "Adalberto", "email": "adalberto.andrade@gmail.com", "telefone": "3799977-8877"}'
-'{"nome": "Guarda-chuva", "preco": 49.99, "descricao": "Tamanho familia"}'
-
-curl -X POST http://127.0.0.1:5000/cliente -H 'Content-Type: application/json' -d '{"codigo": 6, "nome": "Adalberto junior hao123", "email": "adalberto.andrade@gmail.com", "telefone": "3799977-88779"}'
-curl -X POST http://127.0.0.1:5000/produto -H 'Content-Type: application/json' -d '{"nome": "Guarda-chuva", "preco": 49.99, "descricao": "Tamanho familia"}'
