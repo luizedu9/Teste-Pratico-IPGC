@@ -17,11 +17,13 @@ from venda import Venda
 
 # Configuração PyMySQL
 
-# Inserir usuario e senha do mysql ####################################################################
-#db = pymysql.connect("localhost", "USER", "PASSWORD", "teste-backend-ipgc-master") 
-#######################################################################################################
 
-db = pymysql.connect("localhost", "admin", "admin7576", "teste-backend-ipgc")
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Inserir usuario e senha do mysql !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+USER = ""
+PASSWORD = ""
+db = pymysql.connect("localhost", USER, PASSWORD, "teste-backend-ipgc-master") 
+
+
 cursor = db.cursor()
 
 #######################################################################################################

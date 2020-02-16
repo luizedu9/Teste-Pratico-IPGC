@@ -1,0 +1,81 @@
+import os
+
+print("############################################################################")
+print("Teste.py")
+print("")
+print("Serão realizadas diversas ações utilizando a API do sistema")
+print("Aperte ENTER para ver o resultado da requisição")
+print("Os comandos a seguir recebem um endereço, método e um json de entrada")
+print("############################################################################")
+input()
+
+print("INSERÇÃO DE CLIENTE")
+print("############################################################################")
+input("""curl -X POST http://127.0.0.1:5000/cliente -H 'Content-Type: application/json' -d '{"nome": "Adalberto", "email": "adalberto.andrade@gmail.com", "telefone": "3799977-8877"}'""")
+os.system("""curl -X POST http://127.0.0.1:5000/cliente -H 'Content-Type: application/json' -d '{"nome": "Adalberto", "email": "adalberto.andrade@gmail.com", "telefone": "3799977-8877"}'""") 
+print("############################################################################")
+input("""curl -X POST http://127.0.0.1:5000/cliente -H 'Content-Type: application/json' -d '{"nome": "Alarico", "email": "alarico@gmail.com", "telefone": "3799914-2475"}'""")
+os.system("""curl -X POST http://127.0.0.1:5000/cliente -H 'Content-Type: application/json' -d '{"nome": "Alarico", "email": "alarico@gmail.com", "telefone": "3799914-2475"}'""") 
+print("############################################################################")
+
+print("CONSULTA DE TODOS OS CLIENTES")
+print("############################################################################")
+input("""curl -X GET http://127.0.0.1:5000/cliente""")
+os.system("""curl -X GET http://127.0.0.1:5000/cliente""") 
+print("############################################################################")
+
+print("ATUALIZAÇÃO DE CLIENTE")
+print("############################################################################")
+input("""curl -X PUT http://127.0.0.1:5000/cliente/1 -H 'Content-Type: application/json' -d '{"codigo": 1, "nome": "Adalberto Andrade", "email": "adalberto.andrade@gmail.com", "telefone": "3799977-8877"}'""")
+os.system("""curl -X PUT http://127.0.0.1:5000/cliente/1 -H 'Content-Type: application/json' -d '{"codigo": 1, "nome": "Adalberto Andrade", "email": "adalberto.andrade@gmail.com", "telefone": "3799977-8877"}'""") 
+print("############################################################################")
+
+print("CONSULTA DE DETERMINADO CLIENTE")
+print("############################################################################")
+input("""curl -X GET http://127.0.0.1:5000/cliente/1""")
+os.system("""curl -X GET http://127.0.0.1:5000/cliente/1""") 
+print("############################################################################")
+
+print("REMOÇÃO DE CLIENTE")
+print("############################################################################")
+input("""curl -X DELETE http://127.0.0.1:5000/cliente/2""")
+os.system("""curl -X DELETE http://127.0.0.1:5000/cliente/2""") 
+print("############################################################################")
+
+print("INSERÇÃO DE PRODUTO")
+print("############################################################################")
+input("""curl -X POST http://127.0.0.1:5000/produto -H 'Content-Type: application/json' -d '{"nome": "Guarda-chuva", "preco": 49.99, "descricao": "Tamanho familia"}'""")
+os.system("""curl -X POST http://127.0.0.1:5000/produto -H 'Content-Type: application/json' -d '{"nome": "Guarda-chuva", "preco": 49.99, "descricao": "Tamanho familia"}'""") 
+print("############################################################################")
+input("""curl -X POST http://127.0.0.1:5000/produto -H 'Content-Type: application/json' -d '{"nome": "Jarro Vidro", "preco": 20.00, "descricao": "Jarro 2L"}'""")
+os.system("""curl -X POST http://127.0.0.1:5000/produto -H 'Content-Type: application/json' -d '{"nome": "Jarro Vidro", "preco": 20.00, "descricao": "Jarro 2L"}'""") 
+print("############################################################################")
+
+print("CONSULTA DE TODOS OS PRODUTOS")
+print("############################################################################")
+input("""curl -X GET http://127.0.0.1:5000/produto""")
+os.system("""curl -X GET http://127.0.0.1:5000/produto""") 
+print("############################################################################")
+
+print("INSERÇÃO DE VENDA")
+print("############################################################################")
+input("""curl -X POST http://127.0.0.1:5000/venda -H 'Content-Type: application/json' -d '{"codigo_cliente": 1, "codigo_produtos": [1, 2]}'""")
+os.system("""curl -X POST http://127.0.0.1:5000/venda -H 'Content-Type: application/json' -d '{"codigo_cliente": 1, "codigo_produtos": [1, 2]}'""") 
+print("############################################################################")
+
+print()
+print()
+data = ""
+while (data == ""):
+	data = input("Digite a DATA de hoje (dd-mm-yyyy): ")
+print()
+
+print("CONSULTA DE VENDA EM DETERMINADA DATA")
+print("############################################################################")
+input("""curl -X GET http://127.0.0.1:5000/venda/""" + data)
+os.system("""curl -X GET http://127.0.0.1:5000/venda/""" + data) 
+print("############################################################################")
+
+print()
+print()
+print("Acesse o README.md para outros exemplos")

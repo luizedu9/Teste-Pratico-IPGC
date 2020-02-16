@@ -35,6 +35,10 @@ source venv/bin/activate
 Executar o Backend:
 python3 backend.py
 
+# Testes:
+
+python3 testes.py
+
 # Acesso API:
 
 ##Acesso ao servidor:
