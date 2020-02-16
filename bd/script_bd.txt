@@ -24,7 +24,7 @@ DEFAULT CHARACTER SET = utf8;
 
 CREATE TABLE IF NOT EXISTS `teste-backend-ipgc`.`Venda` (
   `ven_codigo` INT(11) NOT NULL AUTO_INCREMENT,
-  `ven_data` DATE NOT NULL,
+  `ven_data` VARCHAR(10) NOT NULL,
   `ven_cli_codigo` INT(11) NOT NULL,
   PRIMARY KEY (`ven_codigo`),
   INDEX `fk_Venda_Cliente1_idx` (`ven_cli_codigo` ASC),

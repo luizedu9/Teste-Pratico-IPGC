@@ -16,7 +16,11 @@ from produto import Produto
 from venda import Venda
 
 # Configuração PyMySQL
-#db = pymysql.connect("localhost", "USER", "PASSWORD", "teste-backend-ipgc-master")
+
+# Inserir usuario e senha do mysql ####################################################################
+#db = pymysql.connect("localhost", "USER", "PASSWORD", "teste-backend-ipgc-master") 
+#######################################################################################################
+
 db = pymysql.connect("localhost", "admin", "admin7576", "teste-backend-ipgc")
 cursor = db.cursor()
 
@@ -111,8 +115,17 @@ def find_venda(codigo):
     return(Venda(resultado_venda[0][0], resultado_venda[0][1], resultado_venda[0][2], produtos))
 
 def find_venda_date(date):
-    pass
-
+    cursor.execute("SELECT * FROM Venda WHERE ven_data = '" + date + "'")
+    resultados_venda = cursor.fetchall()
+    vendas = []
+    for venda in resultados_venda:
+        cursor.execute("SELECT pv_pro_codigo FROM Produto_Venda WHERE pv_ven_codigo = " + str(venda[0]))
+        resultado_produtos = cursor.fetchall()
+        produtos = []
+        for produto in resultado_produtos:
+            produtos.append(produto[0])
+        vendas.append(Venda(venda[0], venda[1], venda[2], produtos))
+    return(vendas)
 
 # Retorna vendas cadastradas. Tipo do retorno: list of vendas.
 def find_all_vendas():

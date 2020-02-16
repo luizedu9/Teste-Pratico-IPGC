@@ -33,100 +33,110 @@ CORS(app)
 #                                                                                                     #
 #######################################################################################################
 
-
-
-## LEMBRAR DO TRY EXCEPTION ***********************************************************************
-
-
-
 # API Cliente
 @app.route('/cliente', methods=['POST', 'GET'])
 @app.route('/cliente/<id>', methods=['GET', 'DELETE', 'PUT'])
 def cliente(id=None):
+    try:
+        data = request.get_json()
 
-    data = request.get_json()
+        if request.method == 'POST':
+            insert_cliente(Cliente(None, data['nome'], data['email'], data['telefone']))
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 201
 
-    if request.method == 'POST':
-        insert_cliente(Cliente(None, data['nome'], data['email'], data['telefone']))
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 201
+        if request.method == 'GET': # Retorna cliente(s)
+            if id != None:
+                cliente = find_cliente(id)
+                return jsonify({'message': '', 'cliente': objeto_to_dicionario(cliente)})
+            clientes = find_all_clientes() # "clientes" é do tipo object, é necessario converter para dict para ser serializado para json 
+            return jsonify({'message': '', 'clientes': objetos_to_dicionarios(clientes)}), 200
+        
+        if request.method == 'DELETE':
+            delete_cliente(id)
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 200
 
-    if request.method == 'GET': # Retorna cliente(s)
-        if id != None:
-            cliente = find_cliente(id)
-            return jsonify({'message': '', 'cliente': objeto_to_dicionario(cliente)})
-        clientes = find_all_clientes() # "clientes" é do tipo object, é necessario converter para dict para ser serializado para json 
-        return jsonify({'message': '', 'clientes': objetos_to_dicionarios(clientes)}), 200
+        if request.method == 'PUT':
+            update_cliente(id, Cliente(data['codigo'], data['nome'], data['email'], data['telefone']))
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 200
     
-    if request.method == 'DELETE':
-        delete_cliente(id)
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 200
-
-    if request.method == 'PUT':
-        update_cliente(id, Cliente(data['codigo'], data['nome'], data['email'], data['telefone']))
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 200
+    except: # Erro de sintaxe do cliente
+        db_rollback()
+        return jsonify({'message': 'Erro'}), 400
 
 # API Produto
 @app.route('/produto', methods=['POST', 'GET'])
 @app.route('/produto/<id>', methods=['GET', 'DELETE', 'PUT'])
 def produto(id=None):
+    try:
+        data = request.get_json()
 
-    data = request.get_json()
+        if request.method == 'POST':
+            insert_produto(Produto(None, data['nome'], float(data['preco']), data['descricao']))
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 201
 
-    if request.method == 'POST':
-        insert_produto(Produto(None, data['nome'], float(data['preco']), data['descricao']))
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 201
+        if request.method == 'GET': # Retorna produtos
+            if id != None:
+                produto = find_produto(id)
+                return jsonify({'message': '', 'produto': objeto_to_dicionario(produto)})
+            produtos = find_all_produtos() # "produtos" é do tipo object, é necessario converter para dict para ser serializado para json 
+            return jsonify({'message': '', 'produtos': objetos_to_dicionarios(produtos)}), 200
+        
+        if request.method == 'DELETE':
+            delete_produto(id)
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 200
 
-    if request.method == 'GET': # Retorna produtos
-        if id != None:
-            produto = find_produto(id)
-            return jsonify({'message': '', 'produto': objeto_to_dicionario(produto)})
-        produtos = find_all_produtos() # "produtos" é do tipo object, é necessario converter para dict para ser serializado para json 
-        return jsonify({'message': '', 'produtos': objetos_to_dicionarios(produtos)}), 200
-    
-    if request.method == 'DELETE':
-        delete_produto(id)
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 200
+        if request.method == 'PUT':
+            update_produto(id, Produto(data['codigo'], data['nome'], float(data['preco']), data['descricao']))
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 200
 
-    if request.method == 'PUT':
-        update_produto(id, Produto(data['codigo'], data['nome'], float(data['preco']), data['descricao']))
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 200
+    except: # Erro de sintaxe do cliente
+        db_rollback()
+        return jsonify({'message': 'Erro'}), 400
 
 # API Venda
 @app.route('/venda', methods=['POST', 'GET'])
 @app.route('/venda/<id>', methods=['GET', 'DELETE', 'PUT'])
 def venda(id=None):
+    try:
+        data = request.get_json()
 
-    data = request.get_json()
+        if request.method == 'POST':
+            date = datetime.now().strftime('%Y-%m-%d')
+            insert_venda(Venda(None, date, data['codigo_cliente'], data['codigo_produtos']))
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 201
 
-    if request.method == 'POST':
-        date = datetime.now().strftime('%Y-%m-%d')
-        insert_venda(Venda(None, date, data['codigo_cliente'], data['codigo_produtos']))
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 201
+        if request.method == 'GET': # Retorna vendas
+            if id != None:
+                if "-" in id:
+                    date = datetime.strptime(id, '%d-%m-%Y').strftime('%Y-%m-%d') # Converte data para formato do MySQL date
+                    vendas = find_venda_date(date)
+                    return jsonify({'message': '', 'vendas': objetos_to_dicionarios(vendas)}), 200
+                else:
+                    venda = find_venda(id)
+                    return jsonify({'message': '', 'venda': objeto_to_dicionario(venda)})
+            vendas = find_all_vendas() # "vendas" é do tipo object, é necessario converter para dict para ser serializado para json 
+            return jsonify({'message': '', 'vendas': objetos_to_dicionarios(vendas)}), 200
+        
+        if request.method == 'DELETE':
+            delete_venda(id)
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 200
 
-    if request.method == 'GET': # Retorna produtos
-        if id != None:
-            venda = find_venda(id)
-            #print((venda.data) == datetime.strftime("2020-02-14", '%Y-%m-%d'))
-            return jsonify({'message': '', 'venda': objeto_to_dicionario(venda)})
-        vendas = find_all_vendas() # "produtos" é do tipo object, é necessario converter para dict para ser serializado para json 
-        return jsonify({'message': '', 'vendas': objetos_to_dicionarios(vendas)}), 200
-    
-    if request.method == 'DELETE':
-        delete_venda(id)
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 200
+        if request.method == 'PUT':
+            update_venda(id, Venda(data['codigo'], datetime.strptime(data['data'], '%d-%m-%Y').strftime('%Y-%m-%d'), data['codigo_cliente'], data['codigo_produtos']))
+            db_commit()
+            return jsonify({'message': 'Sucesso'}), 200
 
-    if request.method == 'PUT':
-        update_venda(id, Venda(data['codigo'], data['data'], data['codigo_cliente'], data['codigo_produtos']))
-        db_commit()
-        return jsonify({'message': 'Sucesso'}), 200
+    except: # Erro de sintaxe do cliente
+        db_rollback()
+        return jsonify({'message': 'Erro'}), 400
 
 @app.errorhandler(404)
 def page_not_found(error):
